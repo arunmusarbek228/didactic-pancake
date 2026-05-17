@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой Магазин</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f4f7f6; 
+            margin: 0; 
+            padding: 0; 
+            color: #333; 
+        }
+        
+        header { 
+            background: #fff; 
+            padding: 20px; 
+            text-align: center; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+            margin-bottom: 20px; 
+        }
+        header h1 { margin: 0; color: #2c3e50; }
+
+        /* ИСПРАВЛЕННЫЙ КОНТЕЙНЕР */
+        .container { 
+            display: flex; 
+            gap: 20px; 
+            align-items: flex-start;
+            padding: 0 20px 20px 20px; /* Отступы только по краям контента */
+            max-width: 100%; /* Убираем ограничение, чтобы растянуть на весь экран */
+            margin: 0; /* Прижимаем к левому краю */
+        }
+        
+        /* Боковая панель */
+        .sidebar { 
+            width: 260px; 
+            min-width: 260px;
+            background: #fff; 
+            padding: 20px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 20px;
+        }
+        
+        .sidebar h3 { margin-top: 0; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .sidebar ul { list-style: none; padding: 0; }
+        .sidebar ul li { margin: 10px 0; }
+        .sidebar ul li a { text-decoration: none; color: #555; font-weight: 500; transition: 0.3s; }
+        .sidebar ul li a:hover { color: #3498db; padding-left: 5px; }
+        .sidebar ul li.active a { color: #3498db; font-weight: bold; }
+
+        /* Основной контент */
+        .main-content { 
+            flex: 1; 
+        }
+        
+        .product-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+            gap: 20px; 
+        }
+        
+        .card { 
+            background: #fff; border-radius: 12px; padding: 15px; text-align: center; 
+            transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: relative;
+        }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        
+        .product-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: #f0f0f0;
+        }
+
+        .price { font-size: 1.2rem; color: #27ae60; font-weight: bold; margin: 10px 0; }
+        .btn { 
+            background: #3498db; color: white; border: none; padding: 10px 15px; 
+            border-radius: 20px; cursor: pointer; width: 100%; transition: 0.3s;
+        }
+        .btn:hover { background: #2ecc71; }
+
+        .badge { position: absolute; top: 10px; right: 10px; background: #e74c3c; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; z-index: 1; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Super Store</h1>
+</header>
+
+<div class="container">
+    <aside class="sidebar">
+        <h3>Категории</h3>
+        <ul>
+            <li class="{% if not category %}active{% endif %}">
+                <a href="/">Все товары</a>
+            </li>
+            {% for c in categories %}
+                <li class="{% if category.slug == c.slug %}active{% endif %}">
+                    <a href="{% url 'shop:product_list_by_category' c.slug %}">{{ c.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <h2 style="margin-top: 0;">
+            {% if category %}{{ category.name }}{% else %}Популярные товары{% endif %}
+        </h2>
+        
+        <div class="product-grid">
+            {% for product in products %}
+                <div class="card">
+                    {% if product.is_popular %}<span class="badge">Хит</span>{% endif %}
+                    
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-img">
+                    {% else %}
+                        <div class="product-img" style="display: flex; align-items: center; justify-content: center; color: #ccc;">Нет фото</div>
+                    {% endif %}
+
+                    <h3>{{ product.name }}</h3>
+                    <p style="font-size: 0.9rem; color: #7f8c8d;">{{ product.description|truncatewords:8 }}</p>
+                    <div class="price">{{ product.price }} руб.</div>
+                    <button class="btn">Купить</button>
+                </div>
+            {% empty %}
+                <p>В этой категории пока пусто.</p>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+
+</body>
+</html>
